@@ -112,23 +112,46 @@ select, input {
   color: var(--navy);
 }
 .buttons {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 10px;
-  flex-wrap: wrap;
+  width: 100%;
 }
-button {
+.plan-option {
   border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 10px 14px;
+  border-radius: 18px;
+  padding: 12px 14px;
   background: var(--white);
   color: var(--text);
   font-weight: 700;
   cursor: pointer;
+  text-align: left;
+  min-height: 76px;
+  display: grid;
+  gap: 4px;
 }
-button.active {
+.plan-option .plan-name {
+  color: var(--navy);
+  font-size: .98rem;
+  line-height: 1.2;
+}
+.plan-option .plan-detail {
+  color: var(--muted);
+  font-size: .8rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.plan-option.active {
   background: var(--navy);
   color: white;
   border-color: var(--navy);
+}
+.plan-option.active .plan-name,
+.plan-option.active .plan-detail {
+  color: white;
+}
+.plan-option.active .plan-detail {
+  opacity: .86;
 }
 .cards {
   display: grid;
@@ -239,6 +262,42 @@ td.number, th.number {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
+.mobile-comparison-list {
+  display: none;
+  padding: 14px;
+  gap: 14px;
+}
+.mobile-comparison-card {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 14px;
+  background: var(--white);
+}
+.mobile-comparison-card h3 {
+  margin: 0 0 4px;
+  color: var(--navy);
+  font-size: 1.05rem;
+}
+.mobile-comparison-card p {
+  margin: 0 0 10px;
+  color: var(--muted);
+  font-size: .88rem;
+  line-height: 1.35;
+}
+.mobile-comparison-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+.mobile-comparison-row span:first-child {
+  color: var(--muted);
+}
+.mobile-comparison-row strong {
+  color: var(--navy);
+  text-align: right;
+}
 .lowest {
   color: var(--green);
   font-weight: 800;
@@ -251,6 +310,57 @@ td.number, th.number {
   color: var(--muted);
   line-height: 1.5;
   font-size: .92rem;
+}
+
+.mobile-summary {
+  display: none;
+  margin: 18px 0 0;
+  background: var(--navy);
+  color: white;
+  border-radius: 22px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+.mobile-summary strong,
+.mobile-summary span {
+  color: inherit;
+}
+.mobile-summary-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.mobile-summary-title strong {
+  font-size: 1rem;
+}
+.mobile-summary-title span {
+  font-size: .82rem;
+  opacity: .85;
+}
+.mobile-summary-items {
+  display: grid;
+  gap: 8px;
+}
+.mobile-summary-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.16);
+  border-radius: 14px;
+  padding: 10px;
+}
+.mobile-summary-item span {
+  font-size: .86rem;
+  line-height: 1.25;
+  opacity: .92;
+}
+.mobile-summary-item strong {
+  font-size: 1.05rem;
+  white-space: nowrap;
 }
 @media (max-width: 940px) {
   .controls, .cards {
@@ -268,10 +378,29 @@ td.number, th.number {
   .card {
     min-height: auto;
   }
-  table {
+  .plan-picker {
     display: block;
-    overflow-x: auto;
-    white-space: nowrap;
+  }
+  .plan-picker h2 {
+    margin-bottom: 10px;
+  }
+  .buttons {
+    grid-template-columns: 1fr;
+  }
+  .plan-option {
+    min-height: 68px;
+  }
+  .mobile-summary {
+    display: block;
+    position: sticky;
+    top: 8px;
+    z-index: 20;
+  }
+  .comparison table {
+    display: none;
+  }
+  .mobile-comparison-list {
+    display: grid;
   }
 }
 </style>
@@ -325,6 +454,8 @@ td.number, th.number {
     </div>
     <p class="helper" id="helperText">For custom percentage, enter a percent such as 80. For custom dollar amount, enter the monthly agency-paid amount.</p>
   </section>
+
+  <section class="mobile-summary" id="mobileSummary" aria-live="polite" aria-label="Estimated monthly cost summary"></section>
 
   <section class="plan-picker">
     <h2>Choose up to three plans</h2>
@@ -688,8 +819,12 @@ function renderPlanButtons() {
   available.forEach(item => {
     const btn = document.createElement('button');
     btn.type = 'button';
-    btn.textContent = item.label;
-    btn.className = selectedPlans.some(sel => sel.label === item.label) ? 'active' : '';
+    btn.className = selectedPlans.some(sel => sel.label === item.label) ? 'plan-option active' : 'plan-option';
+    btn.setAttribute('aria-pressed', selectedPlans.some(sel => sel.label === item.label) ? 'true' : 'false');
+    btn.innerHTML = `
+      <span class="plan-name">${item.plan}</span>
+      <span class="plan-detail">${item.network || benefitType.value}</span>
+    `;
     btn.addEventListener('click', () => {
       const exists = selectedPlans.some(sel => sel.label === item.label);
       if (exists) {
@@ -755,7 +890,7 @@ function renderTable() {
     ['Estimated employee annual cost', ...calcs.map(c => dollars(c.annualEmployee))]
   ];
 
-  tableWrap.innerHTML = `
+  const desktopTable = `
     <table>
       <thead>
         <tr>
@@ -777,6 +912,49 @@ function renderTable() {
         `).join('')}
       </tbody>
     </table>
+  `;
+
+  const mobileCards = `
+    <div class="mobile-comparison-list">
+      ${calcs.map(c => `
+        <article class="mobile-comparison-card">
+          <h3>${c.item.plan}</h3>
+          <p>${c.item.network || benefitType.value}</p>
+          <div class="mobile-comparison-row"><span>Employee monthly cost</span><strong class="${c.employeePaid === minEmployee ? 'lowest' : c.employeePaid === maxEmployee && maxEmployee !== minEmployee ? 'highest' : ''}">${dollars(c.employeePaid)}</strong></div>
+          <div class="mobile-comparison-row"><span>Employee annual cost</span><strong>${dollars(c.annualEmployee)}</strong></div>
+          <div class="mobile-comparison-row"><span>Total monthly premium</span><strong>${dollars(c.raw)}</strong></div>
+          <div class="mobile-comparison-row"><span>Employer/agency contribution</span><strong>${c.contribution}</strong></div>
+          <div class="mobile-comparison-row"><span>Estimated employer/agency paid</span><strong>${dollars(c.employerPaid)}</strong></div>
+          <div class="mobile-comparison-row"><span>Coverage level</span><strong>${coverage.value}</strong></div>
+        </article>
+      `).join('')}
+    </div>
+  `;
+
+  tableWrap.innerHTML = desktopTable + mobileCards;
+}
+
+function renderStickySummary() {
+  const summary = document.getElementById('mobileSummary');
+  if (!summary) return;
+  const calcs = selectedPlans.map(item => ({ item, ...calculate(item) }));
+  if (!calcs.length) {
+    summary.innerHTML = '';
+    return;
+  }
+  summary.innerHTML = `
+    <div class="mobile-summary-title">
+      <strong>Estimated monthly cost</strong>
+      <span>${coverage.value}</span>
+    </div>
+    <div class="mobile-summary-items">
+      ${calcs.map(c => `
+        <div class="mobile-summary-item">
+          <span>${c.item.plan}${c.item.network ? ' — ' + c.item.network.replace('BCBST ', '').replace('Cigna ', '') : ''}</span>
+          <strong>${dollars(c.employeePaid)}</strong>
+        </div>
+      `).join('')}
+    </div>
   `;
 }
 
@@ -801,6 +979,7 @@ function render() {
   renderPlanButtons();
   renderCards();
   renderTable();
+  renderStickySummary();
 }
 
 [benefitType, entity, coverage, contributionMode, customContribution].forEach(el => {
