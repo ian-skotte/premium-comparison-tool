@@ -408,8 +408,8 @@ td.number, th.number {
 <body>
 <header>
   <h1>Compare 2026 premium options side by side.</h1>
-  <p>Select an employee group, coverage tier and up to three plans to compare monthly premium, estimated employee cost and annual cost.</p>
-  <div class="notice"><strong>Prototype note:</strong> This tool uses premium data from the uploaded spreadsheet. State/Higher Education health and dental employee costs use the included employer contribution percentages. Local Education and Local Government can be modeled with a custom agency contribution.</div>
+  <p>Select an employee group, coverage tier and up to three plans to compare monthly premium, estimated employee cost, deductible and out-of-pocket maximums.</p>
+  <div class="notice"><strong>Prototype note:</strong> This tool uses premium, deductible and out-of-pocket maximum data from the uploaded spreadsheets. State/Higher Education health and dental employee costs use the included employer contribution percentages. Local Education and Local Government can be modeled with a custom agency contribution.</div>
 </header>
 
 <main class="app">
@@ -469,7 +469,7 @@ td.number, th.number {
     <div id="tableWrap"></div>
   </section>
 
-  <p class="footer-note">This prototype is intended for review and testing before publication. Confirm final premiums, contribution rules, disclaimer language and accessibility requirements before using publicly.</p>
+  <p class="footer-note">This prototype is intended for review and testing before publication. Confirm final premiums, deductible/out-of-pocket amounts, contribution rules, disclaimer language and accessibility requirements before using publicly.</p>
 </main>
 
 <script>
@@ -737,6 +737,653 @@ const ancillaryData = {
   }
 };
 
+const planDetails = {
+  "Local Education": {
+    "PREMIER PPO": {
+      "Employee Only": {
+        "deductible": {
+          "in": 750,
+          "out": 1500
+        },
+        "medicalOOP": {
+          "in": 3600,
+          "out": 7200
+        },
+        "rxOOP": {
+          "in": 2400,
+          "out": "N/A"
+        }
+      },
+      "Employee + Child(ren)": {
+        "deductible": {
+          "in": 1125,
+          "out": 2250
+        },
+        "medicalOOP": {
+          "in": 5400,
+          "out": 10800
+        },
+        "rxOOP": {
+          "in": 3600,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse": {
+        "deductible": {
+          "in": 1500,
+          "out": 3000
+        },
+        "medicalOOP": {
+          "in": 7200,
+          "out": 14400
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse + Child(ren)": {
+        "deductible": {
+          "in": 1875,
+          "out": 3750
+        },
+        "medicalOOP": {
+          "in": 9000,
+          "out": 18000
+        },
+        "rxOOP": {
+          "in": 6000,
+          "out": "N/A"
+        }
+      }
+    },
+    "STANDARD PPO": {
+      "Employee Only": {
+        "deductible": {
+          "in": 1300,
+          "out": 2600
+        },
+        "medicalOOP": {
+          "in": 4400,
+          "out": 8800
+        },
+        "rxOOP": {
+          "in": 2400,
+          "out": "N/A"
+        }
+      },
+      "Employee + Child(ren)": {
+        "deductible": {
+          "in": 1950,
+          "out": 3900
+        },
+        "medicalOOP": {
+          "in": 6600,
+          "out": 13200
+        },
+        "rxOOP": {
+          "in": 3600,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse": {
+        "deductible": {
+          "in": 2600,
+          "out": 5200
+        },
+        "medicalOOP": {
+          "in": 8800,
+          "out": 17600
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse + Child(ren)": {
+        "deductible": {
+          "in": 3250,
+          "out": 6500
+        },
+        "medicalOOP": {
+          "in": 11000,
+          "out": 22000
+        },
+        "rxOOP": {
+          "in": 6000,
+          "out": "N/A"
+        }
+      }
+    },
+    "LIMITED PPO": {
+      "Employee Only": {
+        "deductible": {
+          "in": 1800,
+          "out": 3600
+        },
+        "medicalOOP": {
+          "in": 6800,
+          "out": 13600
+        },
+        "rxOOP": {
+          "in": 2400,
+          "out": "N/A"
+        }
+      },
+      "Employee + Child(ren)": {
+        "deductible": {
+          "in": 2500,
+          "out": 4800
+        },
+        "medicalOOP": {
+          "in": 13600,
+          "out": 27200
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse": {
+        "deductible": {
+          "in": 2800,
+          "out": 5500
+        },
+        "medicalOOP": {
+          "in": 13600,
+          "out": 27200
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse + Child(ren)": {
+        "deductible": {
+          "in": 3600,
+          "out": 7200
+        },
+        "medicalOOP": {
+          "in": 13600,
+          "out": 27200
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      }
+    },
+    "CDHP/HSA": {
+      "Employee Only": {
+        "deductible": {
+          "in": 2000,
+          "out": 4000
+        },
+        "medicalOOP": {
+          "in": 5000,
+          "out": 10000
+        },
+        "rxOOP": {
+          "in": 2400,
+          "out": "N/A"
+        }
+      },
+      "Employee + Child(ren)": {
+        "deductible": {
+          "in": 4000,
+          "out": 8000
+        },
+        "medicalOOP": {
+          "in": 10000,
+          "out": 20000
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse": {
+        "deductible": {
+          "in": 4000,
+          "out": 8000
+        },
+        "medicalOOP": {
+          "in": 10000,
+          "out": 20000
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse + Child(ren)": {
+        "deductible": {
+          "in": 4000,
+          "out": 8000
+        },
+        "medicalOOP": {
+          "in": 10000,
+          "out": 20000
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      }
+    }
+  },
+  "Local Government": {
+    "PREMIER PPO": {
+      "Employee Only": {
+        "deductible": {
+          "in": 750,
+          "out": 1500
+        },
+        "medicalOOP": {
+          "in": 3600,
+          "out": 7200
+        },
+        "rxOOP": {
+          "in": 2400,
+          "out": "N/A"
+        }
+      },
+      "Employee + Child(ren)": {
+        "deductible": {
+          "in": 1125,
+          "out": 2250
+        },
+        "medicalOOP": {
+          "in": 5400,
+          "out": 10800
+        },
+        "rxOOP": {
+          "in": 3600,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse": {
+        "deductible": {
+          "in": 1500,
+          "out": 3000
+        },
+        "medicalOOP": {
+          "in": 7200,
+          "out": 14400
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse + Child(ren)": {
+        "deductible": {
+          "in": 1875,
+          "out": 3750
+        },
+        "medicalOOP": {
+          "in": 9000,
+          "out": 18000
+        },
+        "rxOOP": {
+          "in": 6000,
+          "out": "N/A"
+        }
+      }
+    },
+    "STANDARD PPO": {
+      "Employee Only": {
+        "deductible": {
+          "in": 1300,
+          "out": 2600
+        },
+        "medicalOOP": {
+          "in": 4400,
+          "out": 8800
+        },
+        "rxOOP": {
+          "in": 2400,
+          "out": "N/A"
+        }
+      },
+      "Employee + Child(ren)": {
+        "deductible": {
+          "in": 1950,
+          "out": 3900
+        },
+        "medicalOOP": {
+          "in": 6600,
+          "out": 13200
+        },
+        "rxOOP": {
+          "in": 3600,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse": {
+        "deductible": {
+          "in": 2600,
+          "out": 5200
+        },
+        "medicalOOP": {
+          "in": 8800,
+          "out": 17600
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse + Child(ren)": {
+        "deductible": {
+          "in": 3250,
+          "out": 6500
+        },
+        "medicalOOP": {
+          "in": 11000,
+          "out": 22000
+        },
+        "rxOOP": {
+          "in": 6000,
+          "out": "N/A"
+        }
+      }
+    },
+    "LIMITED PPO": {
+      "Employee Only": {
+        "deductible": {
+          "in": 1800,
+          "out": 3600
+        },
+        "medicalOOP": {
+          "in": 6800,
+          "out": 13600
+        },
+        "rxOOP": {
+          "in": 2400,
+          "out": "N/A"
+        }
+      },
+      "Employee + Child(ren)": {
+        "deductible": {
+          "in": 2500,
+          "out": 4800
+        },
+        "medicalOOP": {
+          "in": 13600,
+          "out": 27200
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse": {
+        "deductible": {
+          "in": 2800,
+          "out": 5500
+        },
+        "medicalOOP": {
+          "in": 13600,
+          "out": 27200
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse + Child(ren)": {
+        "deductible": {
+          "in": 3600,
+          "out": 7200
+        },
+        "medicalOOP": {
+          "in": 13600,
+          "out": 27200
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      }
+    },
+    "CDHP/HSA": {
+      "Employee Only": {
+        "deductible": {
+          "in": 2000,
+          "out": 4000
+        },
+        "medicalOOP": {
+          "in": 5000,
+          "out": 10000
+        },
+        "rxOOP": {
+          "in": 2400,
+          "out": "N/A"
+        }
+      },
+      "Employee + Child(ren)": {
+        "deductible": {
+          "in": 4000,
+          "out": 8000
+        },
+        "medicalOOP": {
+          "in": 10000,
+          "out": 20000
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse": {
+        "deductible": {
+          "in": 4000,
+          "out": 8000
+        },
+        "medicalOOP": {
+          "in": 10000,
+          "out": 20000
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse + Child(ren)": {
+        "deductible": {
+          "in": 4000,
+          "out": 8000
+        },
+        "medicalOOP": {
+          "in": 10000,
+          "out": 20000
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      }
+    }
+  },
+  "State/Higher Education": {
+    "PREMIER PPO": {
+      "Employee Only": {
+        "deductible": {
+          "in": 750,
+          "out": 1500
+        },
+        "medicalOOP": {
+          "in": 3600,
+          "out": 7200
+        },
+        "rxOOP": {
+          "in": 2400,
+          "out": "N/A"
+        }
+      },
+      "Employee + Child(ren)": {
+        "deductible": {
+          "in": 1125,
+          "out": 2250
+        },
+        "medicalOOP": {
+          "in": 5400,
+          "out": 10800
+        },
+        "rxOOP": {
+          "in": 3600,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse": {
+        "deductible": {
+          "in": 1500,
+          "out": 3000
+        },
+        "medicalOOP": {
+          "in": 7200,
+          "out": 14400
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse + Child(ren)": {
+        "deductible": {
+          "in": 1875,
+          "out": 3750
+        },
+        "medicalOOP": {
+          "in": 9000,
+          "out": 18000
+        },
+        "rxOOP": {
+          "in": 6000,
+          "out": "N/A"
+        }
+      }
+    },
+    "STANDARD PPO": {
+      "Employee Only": {
+        "deductible": {
+          "in": 1300,
+          "out": 2600
+        },
+        "medicalOOP": {
+          "in": 4400,
+          "out": 8800
+        },
+        "rxOOP": {
+          "in": 2400,
+          "out": "N/A"
+        }
+      },
+      "Employee + Child(ren)": {
+        "deductible": {
+          "in": 1950,
+          "out": 3900
+        },
+        "medicalOOP": {
+          "in": 6600,
+          "out": 13200
+        },
+        "rxOOP": {
+          "in": 3600,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse": {
+        "deductible": {
+          "in": 2600,
+          "out": 5200
+        },
+        "medicalOOP": {
+          "in": 8800,
+          "out": 17600
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse + Child(ren)": {
+        "deductible": {
+          "in": 3250,
+          "out": 6500
+        },
+        "medicalOOP": {
+          "in": 11000,
+          "out": 22000
+        },
+        "rxOOP": {
+          "in": 6000,
+          "out": "N/A"
+        }
+      }
+    },
+    "CDHP/HSA": {
+      "Employee Only": {
+        "deductible": {
+          "in": 1700,
+          "out": 3400
+        },
+        "medicalOOP": {
+          "in": 2800,
+          "out": 5600
+        },
+        "rxOOP": {
+          "in": 2400,
+          "out": "N/A"
+        }
+      },
+      "Employee + Child(ren)": {
+        "deductible": {
+          "in": 3400,
+          "out": 6800
+        },
+        "medicalOOP": {
+          "in": 5600,
+          "out": 11200
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse": {
+        "deductible": {
+          "in": 3400,
+          "out": 6800
+        },
+        "medicalOOP": {
+          "in": 5600,
+          "out": 11200
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      },
+      "Employee + Spouse + Child(ren)": {
+        "deductible": {
+          "in": 3400,
+          "out": 6800
+        },
+        "medicalOOP": {
+          "in": 5600,
+          "out": 11200
+        },
+        "rxOOP": {
+          "in": 4800,
+          "out": "N/A"
+        }
+      }
+    }
+  }
+};
+
 let selectedPlans = [];
 
 const benefitType = document.getElementById('benefitType');
@@ -755,6 +1402,31 @@ function dollars(value) {
 
 function percent(value) {
   return Math.round(value * 100) + '%';
+}
+
+function formatPlanValue(value) {
+  if (value === undefined || value === null || value === '') return 'Not available';
+  if (String(value).toUpperCase() === 'N/A') return 'N/A';
+  return dollars(Number(value));
+}
+
+function getPlanDetails(item) {
+  if (benefitType.value !== 'Health') return null;
+  const tier = coverage.value;
+  return planDetails?.[entity.value]?.[item.plan]?.[tier] || null;
+}
+
+function detailRows(item) {
+  const details = getPlanDetails(item);
+  if (!details) return [];
+  return [
+    ['In-network deductible', formatPlanValue(details.deductible?.in)],
+    ['Out-of-network deductible', formatPlanValue(details.deductible?.out)],
+    ['In-network medical out-of-pocket max', formatPlanValue(details.medicalOOP?.in)],
+    ['Out-of-network medical out-of-pocket max', formatPlanValue(details.medicalOOP?.out)],
+    ['In-network specialty Rx out-of-pocket max', formatPlanValue(details.rxOOP?.in)],
+    ['Out-of-network specialty Rx out-of-pocket max', formatPlanValue(details.rxOOP?.out)]
+  ];
 }
 
 function getAvailablePlans() {
@@ -858,6 +1530,7 @@ function renderCards() {
         <div class="row"><span>Employer/agency contribution</span><strong>${calc.contribution}</strong></div>
         <div class="row"><span>Estimated employer/agency paid</span><strong>${dollars(calc.employerPaid)}</strong></div>
         <div class="row"><span>Coverage level</span><strong>${coverage.value}</strong></div>
+        ${detailRows(item).map(row => `<div class="row"><span>${row[0]}</span><strong>${row[1]}</strong></div>`).join('')}
       </div>
     `;
     cards.appendChild(card);
@@ -887,7 +1560,15 @@ function renderTable() {
     ['Employer/agency contribution', ...calcs.map(c => c.contribution)],
     ['Estimated employer/agency paid', ...calcs.map(c => dollars(c.employerPaid))],
     ['Estimated employee monthly cost', ...calcs.map(c => dollars(c.employeePaid))],
-    ['Estimated employee annual cost', ...calcs.map(c => dollars(c.annualEmployee))]
+    ['Estimated employee annual cost', ...calcs.map(c => dollars(c.annualEmployee))],
+    ...(benefitType.value === 'Health' ? [
+      ['In-network deductible', ...calcs.map(c => detailRows(c.item).find(row => row[0] === 'In-network deductible')?.[1] || 'Not available')],
+      ['Out-of-network deductible', ...calcs.map(c => detailRows(c.item).find(row => row[0] === 'Out-of-network deductible')?.[1] || 'Not available')],
+      ['In-network medical out-of-pocket max', ...calcs.map(c => detailRows(c.item).find(row => row[0] === 'In-network medical out-of-pocket max')?.[1] || 'Not available')],
+      ['Out-of-network medical out-of-pocket max', ...calcs.map(c => detailRows(c.item).find(row => row[0] === 'Out-of-network medical out-of-pocket max')?.[1] || 'Not available')],
+      ['In-network specialty Rx out-of-pocket max', ...calcs.map(c => detailRows(c.item).find(row => row[0] === 'In-network specialty Rx out-of-pocket max')?.[1] || 'Not available')],
+      ['Out-of-network specialty Rx out-of-pocket max', ...calcs.map(c => detailRows(c.item).find(row => row[0] === 'Out-of-network specialty Rx out-of-pocket max')?.[1] || 'Not available')]
+    ] : [])
   ];
 
   const desktopTable = `
@@ -926,6 +1607,7 @@ function renderTable() {
           <div class="mobile-comparison-row"><span>Employer/agency contribution</span><strong>${c.contribution}</strong></div>
           <div class="mobile-comparison-row"><span>Estimated employer/agency paid</span><strong>${dollars(c.employerPaid)}</strong></div>
           <div class="mobile-comparison-row"><span>Coverage level</span><strong>${coverage.value}</strong></div>
+          ${detailRows(c.item).map(row => `<div class="mobile-comparison-row"><span>${row[0]}</span><strong>${row[1]}</strong></div>`).join('')}
         </article>
       `).join('')}
     </div>
