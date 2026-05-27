@@ -1,926 +1,690 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2026 Health Plan Comparison Tool</title>
-  <style>
-    :root {
-      --blue: #123f73;
-      --red: #c8102e;
-      --gold: #f2b84b;
-      --green: #1f7a4d;
-      --ink: #1d2733;
-      --muted: #5f6b7a;
-      --line: #d9e1ea;
-      --bg: #f5f8fb;
-      --card: #ffffff;
-      --light-blue: #eaf4fb;
-      --shadow: 0 12px 28px rgba(18, 63, 115, 0.12);
-      --radius: 18px;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      color: var(--ink);
-      background: var(--bg);
-      line-height: 1.45;
-    }
-
-    .hero {
-      background: linear-gradient(135deg, var(--blue), #0a2d52 70%);
-      color: #fff;
-      padding: 36px 20px 30px;
-    }
-
-    .hero-inner, .wrap {
-      width: min(1180px, calc(100% - 32px));
-      margin: 0 auto;
-    }
-
-    .eyebrow {
-      display: inline-flex;
-      margin: 0 0 12px;
-      padding: 6px 10px;
-      border: 1px solid rgba(255,255,255,.28);
-      border-radius: 999px;
-      font-size: 13px;
-      color: #dbefff;
-    }
-
-    h1 {
-      margin: 0 0 10px;
-      font-size: clamp(30px, 4vw, 52px);
-      line-height: 1.05;
-      letter-spacing: -.03em;
-    }
-
-    .hero p {
-      max-width: 850px;
-      margin: 0;
-      color: #dceaf6;
-      font-size: 18px;
-    }
-
-    .notice {
-      width: min(1180px, calc(100% - 32px));
-      margin: -18px auto 22px;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-left: 6px solid var(--gold);
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-      padding: 14px 16px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .tool-grid {
-      display: grid;
-      grid-template-columns: minmax(280px, 330px) minmax(0, 1fr);
-      gap: 22px;
-      align-items: start;
-    }
-
-    .tool-grid > section,
-    .cards,
-    .compare-panel,
-    .table-wrap {
-      min-width: 0;
-    }
-
-    .panel, .card, .compare-panel, .stat, .def {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    .panel {
-      position: sticky;
-      top: 16px;
-      overflow: hidden;
-    }
-
-    .panel-header {
-      background: var(--blue);
-      color: #fff;
-      padding: 18px;
-    }
-
-    .panel-header h2, .section-title h2, .compare-header h2 {
-      margin: 0;
-      font-size: 21px;
-    }
-
-    .panel-header p, .section-title p {
-      margin: 6px 0 0;
-      color: #dceaf6;
-      font-size: 14px;
-    }
-
-    .section-title p { color: var(--muted); }
-
-    .filters { padding: 18px; }
-
-    label {
-      display: block;
-      font-weight: 700;
-      margin: 0 0 7px;
-      font-size: 14px;
-    }
-
-    select, input[type="number"] {
-      width: 100%;
-      padding: 11px 12px;
-      border: 1px solid #cbd6e2;
-      border-radius: 11px;
-      background: #fff;
-      color: var(--ink);
-      font-size: 15px;
-    }
-
-    .field { margin-bottom: 15px; }
-
-    .inline-fields {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .hint {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    fieldset.scenario {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      margin: 14px 0 0;
-      padding: 0;
-      overflow: hidden;
-    }
-
-    .scenario legend {
-      margin-left: 12px;
-      padding: 0 6px;
-      font-weight: 700;
-      color: var(--blue);
-    }
-
-    .scenario-inner {
-      padding: 12px;
-      background: #fbfdff;
-    }
-
-    .btn-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 16px;
-    }
-
-    button {
-      border: 0;
-      border-radius: 999px;
-      padding: 11px 16px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .primary { background: var(--red); color: #fff; }
-    .secondary { background: var(--light-blue); color: var(--blue); }
-
-    .btn-row .primary {
-      width: 100%;
-    }
-
-    .summary-strip {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-bottom: 18px;
-    }
-
-    .summary-strip .stat:first-child {
-      grid-column: 1 / -1;
-    }
-
-    .stat { padding: 16px; }
-    .stat .label { color: var(--muted); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
-    .stat .value { display: block; margin-top: 6px; font-size: 28px; font-weight: 800; color: var(--blue); }
-    .stat .sub { margin-top: 3px; color: var(--muted); font-size: 13px; }
-
-    .section-title {
-      display: flex;
-      justify-content: space-between;
-      align-items: end;
-      gap: 16px;
-      margin: 10px 0 14px;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 16px;
-    }
-
-    .card,
-    .card-top,
-    .card-body,
-    .mini-grid,
-    .service-list {
-      min-width: 0;
-    }
-
-    .card { overflow: hidden; }
-
-    .card-top {
-      padding: 16px;
-      border-bottom: 1px solid var(--line);
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: flex-start;
-      flex-wrap: wrap;
-    }
-
-    .plan-name {
-      margin: 0;
-      font-size: 22px;
-      color: var(--blue);
-    }
-
-    .network {
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 3px;
-    }
-
-    .plan-name,
-    .network,
-    .price,
-    .price strong,
-    .price span,
-    .mini b,
-    .mini span {
-      min-width: 0;
-      overflow-wrap: anywhere;
-    }
-
-    .badge {
-      align-self: start;
-      background: #eef7f2;
-      color: var(--green);
-      border: 1px solid #cde8d7;
-      border-radius: 999px;
-      padding: 5px 9px;
-      font-size: 12px;
-      font-weight: 800;
-      white-space: nowrap;
-    }
-
-    .card-body { padding: 16px; }
-
-    .price {
-      display: flex;
-      align-items: baseline;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-
-    .price strong { font-size: 34px; letter-spacing: -.03em; }
-    .price span { color: var(--muted); }
-
-    .mini-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 9px;
-      margin: 14px 0;
-    }
-
-    .mini {
-      min-width: 0;
-      background: #f7fafc;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 10px;
-    }
-
-    .mini b { display: block; color: var(--blue); font-size: 16px; }
-    .mini span { color: var(--muted); font-size: 12px; }
-
-    details {
-      border-top: 1px solid var(--line);
-      padding-top: 12px;
-      margin-top: 12px;
-    }
-
-    summary {
-      cursor: pointer;
-      color: var(--blue);
-      font-weight: 800;
-    }
-
-    .service-list {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-      margin-top: 12px;
-      font-size: 13px;
-    }
-
-    .service-list div {
-      background: #fbfdff;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 8px;
-    }
-
-    .compare-panel {
-      margin-top: 20px;
-      overflow: hidden;
-    }
-
-    .compare-header {
-      background: var(--blue);
-      color: #fff;
-      padding: 14px 16px;
-    }
-
-    .table-wrap { overflow-x: auto; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 860px;
-      background: #fff;
-    }
-
-    th, td {
-      padding: 12px 10px;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-      vertical-align: top;
-      font-size: 14px;
-    }
-
-    th {
-      background: #f1f6fb;
-      color: var(--blue);
-      white-space: nowrap;
-    }
-
-    .best-row td:first-child::before {
-      content: "Best estimate";
-      display: inline-block;
-      margin-right: 8px;
-      background: #eef7f2;
-      color: var(--green);
-      border: 1px solid #cde8d7;
-      border-radius: 999px;
-      padding: 3px 8px;
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    .defs {
-      margin: 22px 0 36px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-    }
-
-    .def { padding: 16px; }
-    .def h3 { margin: 0 0 6px; color: var(--blue); }
-    .def p { margin: 0; color: var(--muted); }
-
-    .footer-note {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 36px;
-    }
-
-    @media (min-width: 1400px) {
-      .summary-strip {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .summary-strip .stat:first-child {
-        grid-column: auto;
-      }
-
-      .cards {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 1100px) {
-      .tool-grid { grid-template-columns: 1fr; }
-      .panel { position: static; }
-      .summary-strip, .defs { grid-template-columns: 1fr; }
-      .summary-strip .stat:first-child { grid-column: auto; }
-      .cards { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 560px) {
-      .hero { padding: 24px 16px 26px; }
-      .hero-inner, .wrap, .notice { width: calc(100% - 24px); }
-      .hero p { font-size: 16px; }
-      .notice { margin-top: -14px; padding: 12px 13px; }
-      .panel, .card, .compare-panel, .def, .stat { border-radius: 14px; }
-      .panel-header, .filters, .card-body, .card-top { padding: 14px; }
-      .inline-fields, .mini-grid, .service-list, .summary-strip, .cards { grid-template-columns: 1fr; }
-      .summary-strip .stat:first-child { grid-column: auto; }
-      .summary-strip { gap: 10px; margin-bottom: 14px; }
-      .stat { padding: 13px; }
-      .stat .value { font-size: 24px; }
-      .section-title { align-items: start; margin-top: 4px; }
-      .card-top { flex-direction: column; }
-      .badge { align-self: flex-start; }
-      .price { display: block; }
-      .price strong { display: block; font-size: 29px; }
-
-      .btn-row {
-        position: sticky;
-        bottom: 0;
-        z-index: 20;
-        margin: 16px -14px -14px;
-        padding: 12px 14px;
-        background: rgba(255,255,255,.96);
-        border-top: 1px solid var(--line);
-        backdrop-filter: blur(8px);
-      }
-
-      .btn-row button { flex: 1; min-width: 120px; }
-      .compare-panel { overflow: visible; }
-      .compare-header { border-radius: 14px 14px 0 0; }
-      .table-wrap { overflow-x: visible; }
-      table, thead, tbody, th, td, tr { display: block; }
-      table { min-width: 0; }
-      thead {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-      }
-      tbody tr {
-        margin: 12px;
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        overflow: hidden;
-        background: #fff;
-      }
-      tbody tr.best-row {
-        border-color: #cde8d7;
-        box-shadow: 0 8px 18px rgba(31, 122, 77, 0.10);
-      }
-      th, td { border-bottom: 1px solid var(--line); padding: 10px 12px; }
-      tbody td {
-        display: grid;
-        grid-template-columns: minmax(120px, 42%) 1fr;
-        gap: 12px;
-        align-items: start;
-        font-size: 14px;
-      }
-      tbody td::before {
-        content: attr(data-label);
-        font-weight: 800;
-        color: var(--blue);
-      }
-      tbody td:first-child {
-        display: block;
-        background: #f1f6fb;
-        color: var(--blue);
-      }
-      tbody td:first-child::before { content: ""; display: none; }
-      .best-row td:first-child::before { content: "Best estimate"; display: inline-block; margin: 0 0 8px; }
-      tbody td:last-child { border-bottom: 0; }
-    }
-
-    @media (max-width: 390px) {
-      .hero-inner, .wrap, .notice { width: calc(100% - 18px); }
-      h1 { font-size: 28px; }
-      .panel-header h2, .section-title h2, .compare-header h2 { font-size: 19px; }
-      select, input[type="number"] { font-size: 16px; }
-      tbody td { grid-template-columns: 1fr; gap: 4px; }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Partners for Health – 2026 Plan Finder</title>
+<style>
+:root{
+  --blue:#123f73;--blue2:#1a5298;--red:#c8102e;--gold:#f2b84b;
+  --green:#1f7a4d;--ink:#1d2733;--muted:#5f6b7a;--line:#d9e1ea;
+  --bg:#f0f5fb;--card:#fff;--lb:#eaf4fb;
+  --shadow:0 8px 28px rgba(18,63,115,.11);--r:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:var(--bg);min-height:100vh;}
+
+/* ── HEADER ── */
+.hdr{background:linear-gradient(135deg,#123f73,#0a2d52 70%);padding:28px 20px 24px;text-align:center;color:#fff;}
+.hdr .eyebrow{display:inline-block;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:4px 12px;font-size:12px;color:#c8dff5;margin-bottom:10px;}
+.hdr h1{font-size:clamp(22px,4vw,38px);letter-spacing:-.02em;line-height:1.1;margin-bottom:8px;}
+.hdr p{color:#cce0f5;font-size:15px;max-width:560px;margin:0 auto;}
+
+/* ── PROGRESS ── */
+.progress-bar{background:#e0eaf4;height:4px;}
+.progress-fill{background:var(--gold);height:4px;transition:width .4s ease;}
+
+/* ── SHELL ── */
+.shell{width:min(680px,calc(100% - 24px));margin:0 auto;padding:28px 0 60px;}
+
+/* ── STEP HEADER ── */
+.step-lbl{font-size:12px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.step-q{font-size:clamp(18px,3vw,24px);font-weight:800;color:var(--ink);line-height:1.25;margin-bottom:6px;}
+.step-hint{font-size:14px;color:var(--muted);margin-bottom:22px;}
+
+/* ── TILE GRID ── */
+.tiles{display:grid;gap:12px;}
+.tiles.cols2{grid-template-columns:1fr 1fr;}
+.tiles.cols4{grid-template-columns:repeat(4,1fr);}
+.tile{border:2px solid var(--line);border-radius:var(--r);background:var(--card);padding:16px 12px;cursor:pointer;text-align:center;transition:border-color .15s,box-shadow .15s,background .15s;user-select:none;}
+.tile:hover{border-color:var(--blue2);box-shadow:0 4px 14px rgba(18,63,115,.12);}
+.tile.selected{border-color:var(--blue);background:var(--lb);box-shadow:0 4px 18px rgba(18,63,115,.16);}
+.tile .icon{font-size:26px;margin-bottom:6px;}
+.tile .t-title{font-weight:800;font-size:15px;color:var(--blue);line-height:1.2;}
+.tile .t-sub{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4;}
+
+/* ── USAGE TILES ── */
+.usage-tile{border:2px solid var(--line);border-radius:var(--r);background:var(--card);padding:18px 16px;cursor:pointer;display:flex;align-items:flex-start;gap:14px;transition:border-color .15s,background .15s,box-shadow .15s;}
+.usage-tile:hover{border-color:var(--blue2);box-shadow:0 4px 14px rgba(18,63,115,.12);}
+.usage-tile.selected{border-color:var(--blue);background:var(--lb);box-shadow:0 4px 18px rgba(18,63,115,.16);}
+.usage-dot{width:18px;height:18px;border-radius:50%;flex-shrink:0;margin-top:2px;}
+.dot-low{background:#22c55e;}.dot-mod{background:#f59e0b;}.dot-high{background:#ef4444;}
+.usage-tile .u-title{font-weight:800;font-size:16px;margin-bottom:3px;}
+.usage-tile .u-desc{font-size:13px;color:var(--muted);line-height:1.5;}
+
+/* ── CONTRIBUTION PANEL ── */
+.contrib-panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:20px;margin-top:20px;}
+.contrib-panel h3{font-size:15px;font-weight:800;color:var(--blue);margin-bottom:4px;}
+.contrib-panel p{font-size:13px;color:var(--muted);margin-bottom:14px;}
+.toggle-row{display:flex;gap:0;border:1px solid var(--line);border-radius:999px;overflow:hidden;width:fit-content;margin-bottom:16px;}
+.toggle-btn{padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;border:0;background:transparent;color:var(--muted);transition:background .15s,color .15s;}
+.toggle-btn.active{background:var(--blue);color:#fff;}
+.contrib-input-wrap{display:flex;align-items:center;gap:10px;}
+.contrib-input-wrap label{font-weight:700;font-size:13px;white-space:nowrap;}
+.contrib-input-wrap input,.contrib-input-wrap select{padding:10px 12px;border:1px solid #cbd6e2;border-radius:10px;font-size:15px;width:160px;}
+.contrib-note{font-size:12px;color:var(--muted);margin-top:8px;}
+
+/* ── ADVANCED TOGGLE ── */
+.adv-toggle{margin-top:18px;text-align:center;}
+.adv-toggle button{background:none;border:1px solid var(--line);border-radius:999px;color:var(--blue);font-size:13px;font-weight:700;padding:8px 18px;cursor:pointer;}
+.adv-panel{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:none;}
+.adv-panel.open{display:block;}
+.adv-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.adv-field label{display:block;font-size:13px;font-weight:700;margin-bottom:5px;color:var(--ink);}
+.adv-field input,.adv-field select{width:100%;padding:9px 11px;border:1px solid #cbd6e2;border-radius:9px;font-size:14px;}
+.adv-field .hint{font-size:11px;color:var(--muted);margin-top:4px;}
+
+/* ── NOTICE ── */
+.notice{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:12px 14px;font-size:13px;color:#92400e;margin-bottom:18px;}
+
+/* ── NAV BUTTONS ── */
+.nav{display:flex;gap:12px;margin-top:28px;}
+.btn{border:0;border-radius:999px;padding:13px 28px;cursor:pointer;font-weight:800;font-size:15px;transition:opacity .15s;}
+.btn-primary{background:var(--red);color:#fff;}
+.btn-back{background:var(--lb);color:var(--blue);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ── RESULTS ── */
+.rec-box{background:linear-gradient(135deg,#eef7f2,#d4eddf);border:1px solid #9dd4b8;border-radius:var(--r);padding:20px;margin-bottom:24px;}
+.rec-box .rec-label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--green);margin-bottom:6px;}
+.rec-box .rec-title{font-size:20px;font-weight:800;color:#145232;margin-bottom:6px;}
+.rec-box .rec-why{font-size:14px;color:#1f5c3a;line-height:1.6;}
+
+.plan-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+.pcard{background:var(--card);border:2px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;display:flex;flex-direction:column;}
+.pcard.top-pick{border-color:var(--green);}
+.pcard-hd{padding:14px;border-bottom:1px solid var(--line);position:relative;}
+.pcard-hd .pname{font-size:17px;font-weight:800;color:var(--blue);}
+.pcard-hd .pbadge{display:inline-block;background:#eef7f2;color:var(--green);border:1px solid #9dd4b8;border-radius:999px;padding:3px 8px;font-size:11px;font-weight:800;margin-top:4px;}
+.pcard-body{padding:14px;flex:1;}
+.big-num{font-size:28px;font-weight:800;letter-spacing:-.02em;color:var(--ink);}
+.big-lbl{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.prow{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px solid #f0f4f8;font-size:13px;}
+.prow:last-child{border-bottom:0;}
+.prow .pk{color:var(--muted);}
+.prow .pv{font-weight:700;color:var(--ink);}
+.tip-btn{background:none;border:0;cursor:pointer;font-size:11px;color:var(--blue);text-decoration:underline;padding:0;margin-left:4px;font-weight:700;}
+.tooltip{display:none;position:absolute;z-index:10;background:#1d2733;color:#fff;font-size:12px;border-radius:10px;padding:10px 13px;width:220px;line-height:1.5;bottom:calc(100% + 8px);left:0;box-shadow:0 8px 20px rgba(0,0,0,.2);}
+.tooltip.open{display:block;}
+.risk-bar-wrap{margin:14px 0 4px;}
+.risk-bar-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px;}
+.risk-bar-bg{background:#e5e7eb;border-radius:999px;height:8px;overflow:hidden;}
+.risk-bar-fill{height:8px;border-radius:999px;transition:width .5s ease;}
+.pcard-foot{padding:12px 14px;background:#f8fafc;border-top:1px solid var(--line);}
+details summary{cursor:pointer;font-size:13px;font-weight:800;color:var(--blue);}
+.svc-rows{margin-top:10px;}
+.svc-row{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f0f4f8;}
+.svc-row:last-child{border-bottom:0;}
+.svc-row .sk{color:var(--muted);}
+
+/* ── FULL TABLE ── */
+.tbl-section{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;margin-bottom:24px;}
+.tbl-hd{background:var(--blue);color:#fff;padding:14px 16px;font-size:16px;font-weight:800;}
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th,td{padding:11px 12px;text-align:left;font-size:13px;border-bottom:1px solid var(--line);vertical-align:top;}
+th{background:#f1f6fb;color:var(--blue);font-size:12px;white-space:nowrap;}
+.best-td{background:#eef7f2 !important;}
+
+/* ── DEFS ── */
+.defs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.def{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;}
+.def h4{font-size:13px;font-weight:800;color:var(--blue);margin-bottom:5px;}
+.def p{font-size:12px;color:var(--muted);line-height:1.5;}
+
+.footer-note{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:8px;}
+.restart-row{text-align:center;margin-top:18px;}
+.restart-row button{background:var(--lb);border:1px solid var(--line);border-radius:999px;color:var(--blue);font-size:13px;font-weight:700;padding:10px 24px;cursor:pointer;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .tiles.cols4{grid-template-columns:1fr 1fr;}
+  .plan-cards{grid-template-columns:1fr;}
+  .adv-grid{grid-template-columns:1fr;}
+  .defs{grid-template-columns:1fr;}
+}
+@media(max-width:420px){
+  .tiles.cols2,.tiles.cols4{grid-template-columns:1fr;}
+  .nav{flex-direction:column;}
+  .btn{text-align:center;}
+}
+</style>
 </head>
 <body>
-  <header class="hero">
-    <div class="hero-inner">
-      <div class="eyebrow">2026 plan year estimate tool</div>
-      <h1>Compare health plan costs before you enroll.</h1>
-      <p>Choose your employee group, coverage level and network. Then adjust your expected care use to compare estimated annual member cost, premiums, deductibles and out-of-pocket exposure.</p>
-    </div>
-  </header>
 
-  <div class="notice">
-    <strong>Planning estimate only.</strong> This tool simplifies plan comparison and does not guarantee actual costs. Actual member costs depend on eligibility, agency contribution rules, provider network, medical necessity, claims, prescriptions and plan documents.
-  </div>
+<header class="hdr">
+  <div class="eyebrow">Partners for Health · 2026 Open Enrollment</div>
+  <h1>Find your best health plan</h1>
+  <p>Answer three quick questions and we'll estimate your total annual cost across every plan option.</p>
+</header>
+<div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
 
-  <main class="wrap tool-grid">
-    <aside class="panel" aria-label="Comparison filters">
-      <div class="panel-header">
-        <h2>Build your estimate</h2>
-        <p>Start broad, then adjust the usage assumptions if needed.</p>
-      </div>
-      <div class="filters">
-        <div class="field">
-          <label for="group">Employee group</label>
-          <select id="group"></select>
-        </div>
+<div class="shell" id="app"></div>
 
-        <div class="field">
-          <label for="tier">Coverage level</label>
-          <select id="tier"></select>
-        </div>
+<script>
+/* ══════════════════════════════════════════
+   DATA
+══════════════════════════════════════════ */
+const TIERS = ["Employee Only","Employee + Child(ren)","Employee + Spouse","Employee + Spouse + Child(ren)"];
 
-        <div class="field">
-          <label for="network">Network</label>
-          <select id="network"></select>
-          <p class="hint">Broad networks generally cost more in monthly premiums.</p>
-        </div>
+const ENTITIES = {
+  state: {
+    label:"State Government",
+    icon:"🏛️",
+    sub:"State agencies, boards & commissions",
+    premType:"employee",
+    plans:["Premier PPO","Standard PPO","CDHP/HSA"]
+  },
+  higher_ed: {
+    label:"Higher Education",
+    icon:"🎓",
+    sub:"Universities & community colleges",
+    premType:"employee",
+    plans:["Premier PPO","Standard PPO","CDHP/HSA"]
+  },
+  local_ed: {
+    label:"Local Education",
+    icon:"🏫",
+    sub:"K–12 school systems",
+    premType:"total",
+    plans:["Premier PPO","Standard PPO","Limited PPO","Local CDHP/HSA"]
+  },
+  local_gov: {
+    label:"Local Government",
+    icon:"🏙️",
+    sub:"Cities, counties & utilities",
+    premType:"total",
+    plans:["Premier PPO","Standard PPO","Limited PPO","Local CDHP/HSA"]
+  }
+};
 
-        <div class="field" id="contributionBox">
-          <label for="agencyContribution">Agency/employer contribution</label>
-          <select id="agencyContribution"></select>
-          <p class="hint">For Local Education and Local Government, uploaded premium sheets show total premium, not each agency’s employee deduction.</p>
-        </div>
+// Monthly premiums: state/higher_ed = employee share; local = total premium
+const PREMIUMS = {
+  state: {
+    "Premier PPO":  { narrow:[177,265,398,459], broad:[267,365,578,639] },
+    "Standard PPO": { narrow:[114,170,256,295], broad:[204,270,436,475] },
+    "CDHP/HSA":     { narrow:[ 79,119,179,206], broad:[169,219,359,386] }
+  },
+  higher_ed: {
+    "Premier PPO":  { narrow:[177,265,398,459], broad:[267,365,578,639] },
+    "Standard PPO": { narrow:[114,170,256,295], broad:[204,270,436,475] },
+    "CDHP/HSA":     { narrow:[ 79,119,179,206], broad:[169,219,359,386] }
+  },
+  local_ed: {
+    "Premier PPO":      { narrow:[793,1307,1783,2060], broad:[883,1407,1963,2240] },
+    "Standard PPO":     { narrow:[736,1214,1656,1914], broad:[826,1314,1836,2094] },
+    "Limited PPO":      { narrow:[695,1146,1565,1807], broad:[785,1246,1745,1987] },
+    "Local CDHP/HSA":   { narrow:[607,1001,1365,1578], broad:[697,1101,1545,1758] }
+  },
+  local_gov: {
+    "Premier PPO":      { narrow:[904,1402,2080,2444], broad:[994,1502,2260,2624] },
+    "Standard PPO":     { narrow:[832,1290,1914,2249], broad:[922,1390,2094,2429] },
+    "Limited PPO":      { narrow:[675,1048,1554,1826], broad:[765,1148,1734,2006] },
+    "Local CDHP/HSA":   { narrow:[624,967,1434,1685], broad:[714,1067,1614,1865] }
+  }
+};
 
-        <fieldset class="scenario">
-          <legend>Expected yearly use</legend>
-          <div class="scenario-inner">
-            <div class="field">
-              <label for="preset">Quick scenario</label>
-              <select id="preset"></select>
-            </div>
-            <div class="inline-fields">
-              <div class="field"><label for="primaryCareVisits">Primary care</label><input id="primaryCareVisits" type="number" min="0" /></div>
-              <div class="field"><label for="specialistVisits">Specialist</label><input id="specialistVisits" type="number" min="0" /></div>
-              <div class="field"><label for="urgentCareVisits">Urgent care</label><input id="urgentCareVisits" type="number" min="0" /></div>
-              <div class="field"><label for="telehealthVisits">Telehealth</label><input id="telehealthVisits" type="number" min="0" /></div>
-              <div class="field"><label for="genericRxFills">Generic Rx</label><input id="genericRxFills" type="number" min="0" /></div>
-              <div class="field"><label for="preferredRxFills">Preferred Rx</label><input id="preferredRxFills" type="number" min="0" /></div>
-              <div class="field"><label for="estimatedMajorMedicalClaims">Estimated major medical claims</label><input id="estimatedMajorMedicalClaims" type="number" min="0" step="100" /></div>
-              <div class="field"><label for="outOfNetworkUse">Out-of-network use?</label><select id="outOfNetworkUse"><option value="false">No</option><option value="true">Some</option></select></div>
-            </div>
-          </div>
-        </fieldset>
+const BENEFITS = {
+  "Premier PPO":    { pc:[25,45], sp:[45,70], uc:[45,70], th:[15,null], rx:[7,40,90], co:[0.15,0.40], ded:[[750,1500],[1125,2250],[1500,3000],[1875,3750]], oop:[[3600,7200],[5400,10800],[7200,14400],[9000,18000]] },
+  "Standard PPO":   { pc:[30,50], sp:[50,75], uc:[50,75], th:[15,null], rx:[14,50,100], co:[0.20,0.40], ded:[[1300,2600],[1950,3900],[2600,5200],[3250,6500]], oop:[[4400,8800],[6600,13200],[8800,17600],[11000,22000]] },
+  "CDHP/HSA":       { pc:[0.20,0.40], sp:[0.20,0.40], uc:[0.20,0.40], th:[0.20,null], rx:[0.20,0.20,0.20], co:[0.20,0.40], ded:[[1700,3400],[3400,6800],[3400,6800],[3400,6800]], oop:[[2800,5600],[5600,11200],[5600,11200],[5600,11200]], hsa:[500,1000,1000,1000] },
+  "Limited PPO":    { pc:[35,55], sp:[55,80], uc:[55,80], th:[15,null], rx:[14,60,110], co:[0.30,0.50], ded:[[1800,3600],[2500,4800],[2800,5500],[3600,7200]], oop:[[6800,13600],[13600,27200],[13600,27200],[13600,27200]] },
+  "Local CDHP/HSA": { pc:[0.30,0.50], sp:[0.30,0.50], uc:[0.30,0.50], th:[0.30,null], rx:[0.30,0.30,0.30], co:[0.30,0.50], ded:[[2000,4000],[4000,8000],[4000,8000],[4000,8000]], oop:[[5000,10000],[10000,20000],[10000,20000],[10000,20000]] }
+};
 
-        <div class="btn-row">
-          <button class="primary" id="resetBtn" type="button">Reset estimate</button>
-        </div>
-      </div>
-    </aside>
+const PRICES = { pc:175, sp:275, uc:325, th:85, grx:25, prx:175 };
 
-    <section>
-      <div class="summary-strip" aria-live="polite">
-        <div class="stat"><span class="label">Lowest estimated total annual cost</span><span class="value" id="bestCost">—</span><div class="sub" id="bestPlan">—</div></div>
-        <div class="stat"><span class="label">Lowest monthly employee premium</span><span class="value" id="lowestPremium">—</span><div class="sub" id="lowestPremiumPlan">—</div></div>
-        <div class="stat"><span class="label">Lowest in-network max risk</span><span class="value" id="lowestRisk">—</span><div class="sub" id="lowestRiskPlan">—</div></div>
-      </div>
+const PRESETS = {
+  low:  { pc:1,sp:0,uc:0,th:1,grx:2,prx:0,major:0 },
+  mod:  { pc:3,sp:2,uc:1,th:2,grx:6,prx:3,major:0 },
+  high: { pc:6,sp:5,uc:2,th:3,grx:12,prx:8,major:12000 }
+};
 
-      <div class="section-title">
-        <div><h2>Recommended plan options</h2><p>Sorted by estimated total annual cost, including premiums.</p></div>
-      </div>
+const TOOLTIPS = {
+  premium:"The amount you (or your employer on your behalf) pay each month just to have coverage — whether or not you use any healthcare.",
+  deductible:"The amount you pay out of your own pocket before the plan starts helping pay for most services. Preventive care (like checkups) is usually free even before you meet the deductible.",
+  oop:"The most you'll ever have to pay for covered in-network care in a year. After you hit this number, the plan pays 100%. This does NOT include your monthly premium.",
+  hsa:"A Health Savings Account lets you save pre-tax dollars to pay for medical costs. Your employer puts money in for free — that's a head start that lowers your real cost.",
+  coinsurance:"After you meet your deductible, coinsurance is your share of each bill. For example, 20% coinsurance means the plan pays 80% and you pay 20%."
+};
 
-      <div class="cards" id="cards"></div>
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+const S = {
+  step: 1,
+  entity: null,
+  tier: null,
+  network: "narrow",
+  usage: null,
+  contribType: "pct",   // "pct" | "dollar"
+  contribPct: 80,
+  contribDollar: 0,
+  adv: false,
+  visits: { pc:3,sp:2,uc:1,th:2,grx:6,prx:3,major:0 },
+  oon: false
+};
 
-      <section class="compare-panel">
-        <div class="compare-header"><h2>Full comparison table</h2></div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Plan</th><th>Estimated total annual cost</th><th>Estimated care cost</th><th>Employee monthly premium</th><th>Annual employee premium</th><th>In-network deductible</th><th>In-network OOP max</th><th>Primary / Specialist</th><th>Rx: Generic / Preferred / Nonpreferred</th>
-              </tr>
-            </thead>
-            <tbody id="compareRows"></tbody>
-          </table>
-        </div>
-      </section>
+/* ══════════════════════════════════════════
+   HELPERS
+══════════════════════════════════════════ */
+const fmt  = n => n.toLocaleString("en-US",{style:"currency",currency:"USD",maximumFractionDigits:0});
+const fmt2 = n => n.toLocaleString("en-US",{style:"currency",currency:"USD",minimumFractionDigits:2,maximumFractionDigits:2});
+const pct  = v => v<1?`${Math.round(v*100)}%`:fmt(v);
 
-      <section class="defs" aria-label="Plain-language definitions" id="definitions"></section>
-      <p class="footer-note"><strong>Important:</strong> Estimated total annual cost includes annual premiums plus estimated medical and prescription costs. The out-of-pocket maximum applies to covered eligible medical, behavioral health and non-specialty pharmacy costs, but it does not include premiums. This prototype focuses on 2026 active employee medical/health plans and intentionally leaves dental, vision, life and disability out of the main comparison to keep the experience clear.</p>
-    </section>
-  </main>
+function memberPay(val,mktPrice){ return val===null||val===undefined?0:(val<1?val*mktPrice:val); }
 
-  <script>
-    const CONFIG = {
-      tool: {
-        name: "2026 Health Plan Comparison Tool",
-        version: "1.0",
-        scope: "Active employee medical/health plans only"
-      },
-      coverageTiers: ["Employee Only", "Employee + Child(ren)", "Employee + Spouse", "Employee + Spouse + Child(ren)"],
-      networks: {
-        narrow: { label: "BCBST Network S / Cigna LocalPlus", shortLabel: "Network S / LocalPlus" },
-        broad: { label: "BCBST Network P / Cigna Open Access", shortLabel: "Network P / Open Access" }
-      },
-      groups: {
-        state: {
-          label: "State & Higher Education",
-          premiumType: "employeePremium",
-          plans: {
-            "Premier PPO": { narrow: [177,265,398,459], broad: [267,365,578,639] },
-            "Standard PPO": { narrow: [114,170,256,295], broad: [204,270,436,475] },
-            "CDHP/HSA": { narrow: [79,119,179,206], broad: [169,219,359,386] }
-          }
-        },
-        le: {
-          label: "Local Education",
-          premiumType: "totalPremium",
-          plans: {
-            "Premier PPO": { narrow: [793,1307,1783,2060], broad: [883,1407,1963,2240] },
-            "Standard PPO": { narrow: [736,1214,1656,1914], broad: [826,1314,1836,2094] },
-            "Limited PPO": { narrow: [695,1146,1565,1807], broad: [785,1246,1745,1987] },
-            "Local CDHP/HSA": { narrow: [607,1001,1365,1578], broad: [697,1101,1545,1758] }
-          }
-        },
-        lg: {
-          label: "Local Government",
-          premiumType: "totalPremium",
-          plans: {
-            "Premier PPO": { narrow: [904,1402,2080,2444], broad: [994,1502,2260,2624] },
-            "Standard PPO": { narrow: [832,1290,1914,2249], broad: [922,1390,2094,2429] },
-            "Limited PPO": { narrow: [675,1048,1554,1826], broad: [765,1148,1734,2006] },
-            "Local CDHP/HSA": { narrow: [624,967,1434,1685], broad: [714,1067,1614,1865] }
-          }
-        }
-      },
-      benefits: {
-        state: {
-          "Premier PPO": { preventive:[0,45], primaryCare:[25,45], specialist:[45,70], behavioralHealth:[25,45], telehealth:[15,null], urgentCare:[45,70], rx:[7,40,90], coinsurance:[0.15,0.40], deductible:[[750,1500],[1125,2250],[1500,3000],[1875,3750]], oopMax:[[3600,7200],[5400,10800],[7200,14400],[9000,18000]] },
-          "Standard PPO": { preventive:[0,50], primaryCare:[30,50], specialist:[50,75], behavioralHealth:[30,50], telehealth:[15,null], urgentCare:[50,75], rx:[14,50,100], coinsurance:[0.20,0.40], deductible:[[1300,2600],[1950,3900],[2600,5200],[3250,6500]], oopMax:[[4400,8800],[6600,13200],[8800,17600],[11000,22000]] },
-          "CDHP/HSA": { preventive:[0,0.40], primaryCare:[0.20,0.40], specialist:[0.20,0.40], behavioralHealth:[0.20,0.40], telehealth:[0.20,null], urgentCare:[0.20,0.40], rx:[0.20,0.20,0.20], coinsurance:[0.20,0.40], deductible:[[1700,3400],[3400,6800],[3400,6800],[3400,6800]], oopMax:[[2800,5600],[5600,11200],[5600,11200],[5600,11200]], hsaContribution:[500,1000,1000,1000] }
-        },
-        local: {
-          "Premier PPO": { preventive:[0,45], primaryCare:[25,45], specialist:[45,70], behavioralHealth:[25,45], telehealth:[15,null], urgentCare:[45,70], rx:[7,40,90], coinsurance:[0.15,0.40], deductible:[[750,1500],[1125,2250],[1500,3000],[1875,3750]], oopMax:[[3600,7200],[5400,10800],[7200,14400],[9000,18000]] },
-          "Standard PPO": { preventive:[0,50], primaryCare:[30,50], specialist:[50,75], behavioralHealth:[30,50], telehealth:[15,null], urgentCare:[50,75], rx:[14,50,100], coinsurance:[0.20,0.40], deductible:[[1300,2600],[1950,3900],[2600,5200],[3250,6500]], oopMax:[[4400,8800],[6600,13200],[8800,17600],[11000,22000]] },
-          "Limited PPO": { preventive:[0,50], primaryCare:[35,55], specialist:[55,80], behavioralHealth:[35,55], telehealth:[15,null], urgentCare:[55,80], rx:[14,60,110], coinsurance:[0.30,0.50], deductible:[[1800,3600],[2500,4800],[2800,5500],[3600,7200]], oopMax:[[6800,13600],[13600,27200],[13600,27200],[13600,27200]] },
-          "Local CDHP/HSA": { preventive:[0,0.50], primaryCare:[0.30,0.50], specialist:[0.30,0.50], behavioralHealth:[0.30,0.50], telehealth:[0.30,null], urgentCare:[0.30,0.50], rx:[0.30,0.30,0.30], coinsurance:[0.30,0.50], deductible:[[2000,4000],[4000,8000],[4000,8000],[4000,8000]], oopMax:[[5000,10000],[10000,20000],[10000,20000],[10000,20000]] }
-        }
-      },
-      assumptions: {
-        marketPrices: { primaryCare:175, specialist:275, urgentCare:325, telehealth:85, genericRx:25, preferredRx:175, nonPreferredRx:350 },
-        agencyContributionOptions: [0,25,50,75,80,100],
-        defaultAgencyContributionPercent: 80,
-        defaultGroup: "state",
-        defaultNetwork: "narrow",
-        defaultCoverageTier: "Employee Only"
-      },
-      usagePresets: {
-        low: { label:"Low use", primaryCareVisits:1, specialistVisits:0, urgentCareVisits:0, telehealthVisits:1, genericRxFills:2, preferredRxFills:0, estimatedMajorMedicalClaims:0, outOfNetworkUse:false },
-        moderate: { label:"Moderate use", primaryCareVisits:3, specialistVisits:2, urgentCareVisits:1, telehealthVisits:2, genericRxFills:6, preferredRxFills:3, estimatedMajorMedicalClaims:0, outOfNetworkUse:false },
-        high: { label:"High use", primaryCareVisits:6, specialistVisits:5, urgentCareVisits:2, telehealthVisits:3, genericRxFills:12, preferredRxFills:8, estimatedMajorMedicalClaims:12000, outOfNetworkUse:false }
-      },
-      definitions: {
-        Premium: "The amount paid each month to keep coverage active.",
-        Deductible: "The amount you pay for eligible expenses before the plan starts sharing certain costs. Some copays and preventive services may work differently.",
-        "Out-of-pocket maximum": "The most you should pay for covered eligible in-network medical, behavioral health and non-specialty pharmacy costs during the year, excluding premiums."
-      }
+function employeePremium(entity, planName, network, ti){
+  const base = PREMIUMS[entity][planName][network][ti];
+  const ent  = ENTITIES[entity];
+  if(ent.premType === "employee") return base;
+  // total premium — subtract employer contribution
+  if(S.contribType === "pct"){
+    return Math.max(0, base * (1 - S.contribPct/100));
+  } else {
+    return Math.max(0, base - S.contribDollar);
+  }
+}
+
+function calcCareCost(planName, ti){
+  const b = BENEFITS[planName];
+  const ni = S.oon ? 1 : 0;
+  const v  = S.visits;
+  const svc =
+    v.pc  * memberPay(b.pc[ni], PRICES.pc) +
+    v.sp  * memberPay(b.sp[ni], PRICES.sp) +
+    v.uc  * memberPay(b.uc[ni], PRICES.uc) +
+    v.th  * memberPay(b.th[ni], PRICES.th) +
+    v.grx * memberPay(b.rx[0],  PRICES.grx) +
+    v.prx * memberPay(b.rx[1],  PRICES.prx);
+  const co = b.co[ni] || b.co[0];
+  const cap = b.oop[ti][ni];
+  return Math.min(svc + v.major * co, cap);
+}
+
+function buildResults(){
+  const ti   = TIERS.indexOf(S.tier);
+  const ent  = ENTITIES[S.entity];
+  return ent.plans.map(name => {
+    const b      = BENEFITS[name];
+    const prem   = employeePremium(S.entity, name, S.network, ti);
+    const ann    = prem * 12;
+    const care   = calcCareCost(name, ti);
+    const hsa    = b.hsa ? b.hsa[ti] : 0;
+    const total  = Math.max(0, ann + care - hsa);
+    return {
+      name, prem, ann, care, hsa, total,
+      ded: b.ded[ti][0], oop: b.oop[ti][0],
+      pc:b.pc[0], sp:b.sp[0], uc:b.uc[0], th:b.th[0],
+      rx:b.rx, co:b.co[0]
     };
+  }).sort((a,b)=>a.total-b.total);
+}
 
-    const $ = (id) => document.getElementById(id);
-    const money = (n) => n.toLocaleString("en-US", { style:"currency", currency:"USD", maximumFractionDigits:0 });
-    const money2 = (n) => n.toLocaleString("en-US", { style:"currency", currency:"USD", minimumFractionDigits:2, maximumFractionDigits:2 });
+function recText(results){
+  const best  = results[0];
+  const isHSA = best.name.includes("HSA");
+  const isLP  = best.name === "Limited PPO";
+  let why = "";
+  if(isHSA){
+    why = `It has the lowest monthly premium and — when you factor in your employer's HSA contribution — the lowest total estimated cost. Because you don't use healthcare very often, you're unlikely to hit your deductible, so you keep more money in your pocket. The HSA also lets you save pre-tax money for future medical costs.`;
+  } else if(S.usage === "high"){
+    why = `With frequent healthcare needs, a higher monthly premium in exchange for lower copays and a lower out-of-pocket maximum gives you the most financial protection. The ${best.name} limits your worst-case annual cost better than the other options.`;
+  } else if(isLP){
+    why = `Given your coverage level and usage, the ${best.name} offers the best balance of premium cost and out-of-pocket exposure for your situation.`;
+  } else {
+    why = `It balances a reasonable monthly premium with solid coverage for the number of visits and prescriptions you expect. You won't overpay on premiums, and your estimated out-of-pocket costs stay manageable.`;
+  }
+  return why;
+}
 
-    function addOptions(select, entries, selectedValue) {
-      select.innerHTML = "";
-      entries.forEach(([value, label]) => {
-        const option = document.createElement("option");
-        option.value = value;
-        option.textContent = label;
-        if (value === selectedValue) option.selected = true;
-        select.appendChild(option);
+/* ══════════════════════════════════════════
+   RENDER ENGINE
+══════════════════════════════════════════ */
+const app  = document.getElementById("app");
+const fill = document.getElementById("progFill");
+
+function setProgress(n){ fill.style.width = n + "%"; }
+
+function render(){
+  if(S.step===1) renderStep1();
+  else if(S.step===2) renderStep2();
+  else if(S.step===3) renderStep3();
+  else renderResults();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ── STEP 1: Entity + Tier ── */
+function renderStep1(){
+  setProgress(10);
+  app.innerHTML = `
+    <div class="step-lbl">Step 1 of 3</div>
+    <div class="step-q">Which group are you in?</div>
+    <div class="step-hint">This determines which plans and premium rates apply to you.</div>
+    <div class="tiles cols2" id="entityTiles">
+      ${Object.entries(ENTITIES).map(([k,v])=>`
+        <div class="tile${S.entity===k?' selected':''}" data-val="${k}" id="ent_${k}">
+          <div class="icon">${v.icon}</div>
+          <div class="t-title">${v.label}</div>
+          <div class="t-sub">${v.sub}</div>
+        </div>`).join("")}
+    </div>
+
+    <div style="height:28px"></div>
+    <div class="step-q">Who are you covering?</div>
+    <div class="step-hint">Choose the coverage level that matches your family situation.</div>
+    <div class="tiles cols2" id="tierTiles">
+      ${[
+        ["Employee Only","Just me","👤"],
+        ["Employee + Child(ren)","Me and my kids","👨‍👧"],
+        ["Employee + Spouse","Me and my spouse/partner","👫"],
+        ["Employee + Spouse + Child(ren)","My whole family","👨‍👩‍👧"]
+      ].map(([val,lbl,ico])=>`
+        <div class="tile${S.tier===val?' selected':''}" data-tier="${val}">
+          <div class="icon">${ico}</div>
+          <div class="t-title">${lbl}</div>
+          <div class="t-sub">${val}</div>
+        </div>`).join("")}
+    </div>
+
+    <div class="nav">
+      <button class="btn btn-primary" id="s1Next" ${(!S.entity||!S.tier)?'disabled':''}>Next: How do you use healthcare? →</button>
+    </div>`;
+
+  app.querySelectorAll("[data-val]").forEach(el=>{
+    el.addEventListener("click",()=>{ S.entity=el.dataset.val; render(); });
+  });
+  app.querySelectorAll("[data-tier]").forEach(el=>{
+    el.addEventListener("click",()=>{ S.tier=el.dataset.tier; render(); });
+  });
+  document.getElementById("s1Next")?.addEventListener("click",()=>{ S.step=2; render(); });
+}
+
+/* ── STEP 2: Usage + Network + Contribution ── */
+function renderStep2(){
+  setProgress(45);
+  const isLocal = S.entity==="local_ed"||S.entity==="local_gov";
+  app.innerHTML = `
+    <div class="step-lbl">Step 2 of 3</div>
+    <div class="step-q">How often do you typically use healthcare?</div>
+    <div class="step-hint">Pick the option that feels most like you. You can fine-tune below.</div>
+    <div class="tiles" style="gap:10px" id="usageTiles">
+      ${[
+        ["low","🟢","Rarely","I'm generally healthy — mostly just annual checkups and maybe a prescription or two.","dot-low"],
+        ["mod","🟡","Sometimes","I go to the doctor a few times a year, see a specialist occasionally, and take some regular medications.","dot-mod"],
+        ["high","🔴","Often","I manage an ongoing condition, see specialists regularly, or expect a major procedure this year.","dot-high"]
+      ].map(([k,,title,desc,dot])=>`
+        <div class="usage-tile${S.usage===k?' selected':''}" data-usage="${k}">
+          <div class="usage-dot ${dot}"></div>
+          <div><div class="u-title">${title}</div><div class="u-desc">${desc}</div></div>
+        </div>`).join("")}
+    </div>
+
+    <div class="adv-toggle">
+      <button id="advToggle">⚙️ Adjust visit counts &amp; details</button>
+    </div>
+    <div class="adv-panel${S.adv?' open':''}" id="advPanel">
+      <div class="adv-grid">
+        <div class="adv-field"><label>Primary care visits</label><input type="number" id="apc" min="0" value="${S.visits.pc}"/></div>
+        <div class="adv-field"><label>Specialist visits</label><input type="number" id="asp" min="0" value="${S.visits.sp}"/></div>
+        <div class="adv-field"><label>Urgent care visits</label><input type="number" id="auc" min="0" value="${S.visits.uc}"/></div>
+        <div class="adv-field"><label>Telehealth visits</label><input type="number" id="ath" min="0" value="${S.visits.th}"/></div>
+        <div class="adv-field"><label>Generic Rx fills (30-day)</label><input type="number" id="agrx" min="0" value="${S.visits.grx}"/></div>
+        <div class="adv-field"><label>Preferred Rx fills (30-day)</label><input type="number" id="aprx" min="0" value="${S.visits.prx}"/></div>
+        <div class="adv-field" style="grid-column:1/-1">
+          <label>Estimated major medical claims ($)</label>
+          <input type="number" id="amaj" min="0" step="500" value="${S.visits.major}"/>
+          <div class="hint">Surgery, hospitalization, imaging, ER visits, etc.</div>
+        </div>
+        <div class="adv-field">
+          <label>Out-of-network use?</label>
+          <select id="aoon"><option value="false"${!S.oon?' selected':''}>No – stay in-network</option><option value="true"${S.oon?' selected':''}>Some out-of-network</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div style="height:24px"></div>
+    <div class="step-q" style="font-size:18px">Which network do you prefer?</div>
+    <div class="step-hint">Not sure? Narrow networks cost less per month. Check if your doctors are in-network at bcbst.com or cigna.com.</div>
+    <div class="tiles cols2" id="netTiles">
+      <div class="tile${S.network==='narrow'?' selected':''}" data-net="narrow">
+        <div class="icon">📍</div>
+        <div class="t-title">Narrower network</div>
+        <div class="t-sub">Lower monthly premiums · BCBST Network S / Cigna LocalPlus</div>
+      </div>
+      <div class="tile${S.network==='broad'?' selected':''}" data-net="broad">
+        <div class="icon">🌐</div>
+        <div class="t-title">Broader network</div>
+        <div class="t-sub">More provider choices · BCBST Network P / Cigna Open Access</div>
+      </div>
+    </div>
+
+    ${isLocal ? `
+    <div class="contrib-panel">
+      <h3>What does your employer contribute?</h3>
+      <p>Local agencies vary in how much they cover. Enter what you know — check your benefits letter or HR portal if unsure.</p>
+      <div class="toggle-row">
+        <button class="toggle-btn${S.contribType==='pct'?' active':''}" id="tPct">% of premium</button>
+        <button class="toggle-btn${S.contribType==='dollar'?' active':''}" id="tDollar">$ per month</button>
+      </div>
+      <div class="contrib-input-wrap" id="contribInput">
+        ${S.contribType==='pct'
+          ? `<label>Employer pays</label>
+             <select id="contribVal">
+               ${[0,25,50,75,80,100].map(n=>`<option value="${n}"${S.contribPct===n?' selected':''}>${n}%</option>`).join("")}
+             </select>
+             <span style="font-size:14px;color:var(--muted)">of the total premium</span>`
+          : `<label>Employer pays</label>
+             <input type="number" id="contribVal" min="0" step="25" value="${S.contribDollar}" style="width:140px"/>
+             <span style="font-size:14px;color:var(--muted)">per month</span>`
+        }
+      </div>
+      <div class="contrib-note" id="contribNote"></div>
+    </div>` : ""}
+
+    <div class="nav">
+      <button class="btn btn-back" id="s2Back">← Back</button>
+      <button class="btn btn-primary" id="s2Next" ${!S.usage?'disabled':''}>See my plan options →</button>
+    </div>`;
+
+  // usage tiles
+  app.querySelectorAll("[data-usage]").forEach(el=>{
+    el.addEventListener("click",()=>{
+      S.usage=el.dataset.usage;
+      const p=PRESETS[S.usage];
+      Object.assign(S.visits,p);
+      // update adv inputs if open
+      ["pc","sp","uc","th","grx","prx","major"].forEach(k=>{
+        const el=document.getElementById("a"+k); if(el) el.value=S.visits[k];
       });
-    }
+      render();
+    });
+  });
 
-    function initializeControls() {
-      addOptions($("group"), Object.entries(CONFIG.groups).map(([key, group]) => [key, group.label]), CONFIG.assumptions.defaultGroup);
-      addOptions($("tier"), CONFIG.coverageTiers.map(tier => [tier, tier]), CONFIG.assumptions.defaultCoverageTier);
-      addOptions($("network"), Object.entries(CONFIG.networks).map(([key, network]) => [key, network.label]), CONFIG.assumptions.defaultNetwork);
-      addOptions($("agencyContribution"), CONFIG.assumptions.agencyContributionOptions.map(n => [String(n), `${n}%`]), String(CONFIG.assumptions.defaultAgencyContributionPercent));
-      addOptions($("preset"), Object.entries(CONFIG.usagePresets).map(([key, preset]) => [key, preset.label]), "moderate");
-      applyPreset("moderate");
-      renderDefinitions();
-    }
+  // adv toggle
+  document.getElementById("advToggle")?.addEventListener("click",()=>{ S.adv=!S.adv; render(); });
 
-    function renderDefinitions() {
-      $("definitions").innerHTML = Object.entries(CONFIG.definitions).map(([term, definition]) => `
-        <div class="def"><h3>${term}</h3><p>${definition}</p></div>
-      `).join("");
-    }
+  // adv inputs
+  ["pc","sp","uc","th","grx","prx","major"].forEach(k=>{
+    document.getElementById("a"+k)?.addEventListener("input",e=>{
+      S.visits[k]=+e.target.value||0; S.usage=null;
+      app.querySelectorAll("[data-usage]").forEach(t=>t.classList.remove("selected"));
+    });
+  });
+  document.getElementById("aoon")?.addEventListener("change",e=>{ S.oon=e.target.value==="true"; });
 
-    function currentInputs() {
-      return {
-        group: $("group").value,
-        tier: $("tier").value,
-        network: $("network").value,
-        contributionPercent: Number($("agencyContribution").value) / 100,
-        primaryCareVisits: Number($("primaryCareVisits").value) || 0,
-        specialistVisits: Number($("specialistVisits").value) || 0,
-        urgentCareVisits: Number($("urgentCareVisits").value) || 0,
-        telehealthVisits: Number($("telehealthVisits").value) || 0,
-        genericRxFills: Number($("genericRxFills").value) || 0,
-        preferredRxFills: Number($("preferredRxFills").value) || 0,
-        estimatedMajorMedicalClaims: Number($("estimatedMajorMedicalClaims").value) || 0,
-        outOfNetworkUse: $("outOfNetworkUse").value === "true"
-      };
-    }
+  // network tiles
+  app.querySelectorAll("[data-net]").forEach(el=>{
+    el.addEventListener("click",()=>{ S.network=el.dataset.net; render(); });
+  });
 
-    function applyPreset(name) {
-      const preset = CONFIG.usagePresets[name];
-      if (!preset) return;
-      ["primaryCareVisits", "specialistVisits", "urgentCareVisits", "telehealthVisits", "genericRxFills", "preferredRxFills", "estimatedMajorMedicalClaims"].forEach(id => $(id).value = preset[id]);
-      $("outOfNetworkUse").value = String(preset.outOfNetworkUse);
-    }
+  // contribution
+  if(isLocal){
+    document.getElementById("tPct")?.addEventListener("click",()=>{ S.contribType="pct"; render(); });
+    document.getElementById("tDollar")?.addEventListener("click",()=>{ S.contribType="dollar"; render(); });
+    document.getElementById("contribVal")?.addEventListener("change",e=>{
+      if(S.contribType==="pct") S.contribPct=+e.target.value;
+      else S.contribDollar=+e.target.value||0;
+      updateContribNote();
+    });
+    document.getElementById("contribVal")?.addEventListener("input",e=>{
+      if(S.contribType==="dollar"){ S.contribDollar=+e.target.value||0; updateContribNote(); }
+    });
+    updateContribNote();
+  }
 
-    function benefitSetKey(group) {
-      return group === "state" ? "state" : "local";
-    }
+  document.getElementById("s2Back")?.addEventListener("click",()=>{ S.step=1; render(); });
+  document.getElementById("s2Next")?.addEventListener("click",()=>{ S.step=4; render(); });
+}
 
-    function getBenefit(group, planName) {
-      return CONFIG.benefits[benefitSetKey(group)][planName];
-    }
+function updateContribNote(){
+  const note=document.getElementById("contribNote"); if(!note) return;
+  const ti=TIERS.indexOf(S.tier);
+  const plans=ENTITIES[S.entity].plans;
+  const maxPrem=Math.max(...plans.map(p=>PREMIUMS[S.entity][p][S.network][ti]));
+  const minPrem=Math.min(...plans.map(p=>PREMIUMS[S.entity][p][S.network][ti]));
+  if(S.contribType==="pct"){
+    const minEmp=Math.max(0,minPrem*(1-S.contribPct/100));
+    const maxEmp=Math.max(0,maxPrem*(1-S.contribPct/100));
+    note.textContent=`Your estimated monthly employee cost: ${fmt2(minEmp)} – ${fmt2(maxEmp)} depending on plan.`;
+  } else {
+    if(S.contribDollar>=minPrem) note.textContent="⚠️ Your employer may cover some plans in full — your cost could be $0. Confirm with HR.";
+    else { const minEmp=Math.max(0,minPrem-S.contribDollar); const maxEmp=Math.max(0,maxPrem-S.contribDollar); note.textContent=`Your estimated monthly employee cost: ${fmt2(minEmp)} – ${fmt2(maxEmp)} depending on plan.`; }
+  }
+}
 
-    function memberPay(value, marketPrice) {
-      if (value === null || value === undefined) return 0;
-      if (value < 1) return value * marketPrice;
-      return value;
-    }
+/* ── RESULTS ── */
+function renderResults(){
+  setProgress(100);
+  const results = buildResults();
+  const best    = results[0];
+  const maxOop  = Math.max(...results.map(r=>r.oop));
 
-    function costText(value) {
-      if (value === null || value === undefined) return "N/A";
-      if (value < 1) return `${Math.round(value * 100)}%`;
-      return money(value);
-    }
+  app.innerHTML = `
+    <div class="step-lbl">Your results</div>
+    <div class="rec-box">
+      <div class="rec-label">✓ Our estimate for you</div>
+      <div class="rec-title">The ${best.name} looks like your best fit.</div>
+      <div class="rec-why">${recText(results)}</div>
+    </div>
 
-    function monthlyPremium(inputs, planName) {
-      const group = CONFIG.groups[inputs.group];
-      const tierIndex = CONFIG.coverageTiers.indexOf(inputs.tier);
-      const basePremium = group.plans[planName][inputs.network][tierIndex];
-      if (group.premiumType === "employeePremium") return basePremium;
-      return basePremium * (1 - inputs.contributionPercent);
-    }
+    <div class="notice">
+      <strong>These are estimates.</strong> Your actual costs depend on your claims, provider choices, and plan documents. Always confirm details with your HR office or at <a href="https://www.tn.gov/partnersforhealth" target="_blank" rel="noopener">tn.gov/partnersforhealth</a>.
+    </div>
 
-    function estimateCareCost(inputs, benefit) {
-      const netIndex = inputs.outOfNetworkUse ? 1 : 0;
-      const prices = CONFIG.assumptions.marketPrices;
-      const serviceCost =
-        inputs.primaryCareVisits * memberPay(benefit.primaryCare[netIndex], prices.primaryCare) +
-        inputs.specialistVisits * memberPay(benefit.specialist[netIndex], prices.specialist) +
-        inputs.urgentCareVisits * memberPay(benefit.urgentCare[netIndex], prices.urgentCare) +
-        inputs.telehealthVisits * memberPay(benefit.telehealth[netIndex], prices.telehealth) +
-        inputs.genericRxFills * memberPay(benefit.rx[0], prices.genericRx) +
-        inputs.preferredRxFills * memberPay(benefit.rx[1], prices.preferredRx);
-      const coinsurance = benefit.coinsurance[netIndex] || benefit.coinsurance[0];
-      const majorMedicalCost = inputs.estimatedMajorMedicalClaims * coinsurance;
-      const tierIndex = CONFIG.coverageTiers.indexOf(inputs.tier);
-      const oopCap = benefit.oopMax[tierIndex][netIndex];
-      return Math.min(serviceCost + majorMedicalCost, oopCap);
-    }
+    <div class="plan-cards" id="planCards">
+      ${results.map((r,i)=>planCard(r,i,maxOop)).join("")}
+    </div>
 
-    function buildResults() {
-      const inputs = currentInputs();
-      const group = CONFIG.groups[inputs.group];
-      $("contributionBox").style.display = inputs.group === "state" ? "none" : "block";
+    <div class="tbl-section">
+      <div class="tbl-hd">Full comparison table</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Plan</th><th>Est. total annual cost</th><th>Est. care cost</th>
+            <th>Monthly premium</th><th>Annual premium</th>
+            <th>Deductible (in-net)</th><th>OOP max (in-net)</th>
+            <th>Primary / Specialist</th><th>Rx: G / P / NP</th>
+          </tr></thead>
+          <tbody>
+            ${results.map((r,i)=>`<tr>
+              <td${i===0?' class="best-td"':''}><strong>${r.name}</strong>${i===0?' ✓':''}</td>
+              <td${i===0?' class="best-td"':''}>${fmt(r.total)}</td>
+              <td>${fmt(r.care)}</td>
+              <td>${fmt2(r.prem)}</td>
+              <td>${fmt(r.ann)}</td>
+              <td>${fmt(r.ded)}</td>
+              <td>${fmt(r.oop)}</td>
+              <td>${pct(r.pc)} / ${pct(r.sp)}</td>
+              <td>${r.rx.map(pct).join(" / ")}</td>
+            </tr>`).join("")}
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-      return Object.keys(group.plans).map(planName => {
-        const benefit = getBenefit(inputs.group, planName);
-        const tierIndex = CONFIG.coverageTiers.indexOf(inputs.tier);
-        const premium = monthlyPremium(inputs, planName);
-        const annualPremium = premium * 12;
-        const careCost = estimateCareCost(inputs, benefit);
-        const hsaContribution = benefit.hsaContribution ? benefit.hsaContribution[tierIndex] : 0;
-        const estimatedAnnualCost = Math.max(0, annualPremium + careCost - hsaContribution);
-        return {
-          planName,
-          premium,
-          annualPremium,
-          careCost,
-          hsaContribution,
-          estimatedAnnualCost,
-          deductibleIn: benefit.deductible[tierIndex][0],
-          oopIn: benefit.oopMax[tierIndex][0],
-          primaryCare: benefit.primaryCare[0],
-          specialist: benefit.specialist[0],
-          urgentCare: benefit.urgentCare[0],
-          telehealth: benefit.telehealth[0],
-          rx: benefit.rx,
-          coinsurance: benefit.coinsurance[0]
-        };
-      }).sort((a, b) => a.estimatedAnnualCost - b.estimatedAnnualCost);
-    }
+    <div class="defs">
+      ${Object.entries({
+        "Monthly premium": TOOLTIPS.premium,
+        "Deductible": TOOLTIPS.deductible,
+        "Out-of-pocket maximum": TOOLTIPS.oop
+      }).map(([t,d])=>`<div class="def"><h4>${t}</h4><p>${d}</p></div>`).join("")}
+    </div>
 
-    function render() {
-      const inputs = currentInputs();
-      const results = buildResults();
-      const best = results[0];
-      const lowPremium = [...results].sort((a,b) => a.premium - b.premium)[0];
-      const lowRisk = [...results].sort((a,b) => a.oopIn - b.oopIn)[0];
+    <p class="footer-note">Estimated total annual cost = annual premiums + estimated out-of-pocket care costs${best.hsa?", minus the estimated employer HSA contribution":""}. The out-of-pocket maximum applies to covered eligible in-network costs and does not include premiums. Dental, vision, life, and disability coverage are not included in this comparison.</p>
 
-      $("bestCost").textContent = money(best.estimatedAnnualCost);
-      $("bestPlan").textContent = best.planName;
-      $("lowestPremium").textContent = money2(lowPremium.premium);
-      $("lowestPremiumPlan").textContent = `${lowPremium.planName} / month`;
-      $("lowestRisk").textContent = money(lowRisk.oopIn);
-      $("lowestRiskPlan").textContent = `${lowRisk.planName} in-network OOP max`;
+    <div class="restart-row">
+      <button id="restartBtn">← Start over</button>
+    </div>`;
 
-      $("cards").innerHTML = results.map((r, index) => `
-        <article class="card">
-          <div class="card-top">
-            <div>
-              <h3 class="plan-name">${r.planName}</h3>
-              <div class="network">${CONFIG.groups[inputs.group].label} · ${CONFIG.networks[inputs.network].shortLabel}</div>
-            </div>
-            ${index === 0 ? `<span class="badge">Lowest estimate</span>` : ``}
-          </div>
-          <div class="card-body">
-            <div class="price"><strong>${money(r.estimatedAnnualCost)}</strong><span>estimated total annual cost</span></div>
-            <div class="mini-grid">
-              <div class="mini"><b>${money2(r.premium)}</b><span>Monthly employee premium</span></div>
-              <div class="mini"><b>${money(r.annualPremium)}</b><span>Annual employee premium</span></div>
-              <div class="mini"><b>${money(r.careCost)}</b><span>Estimated care cost</span></div>
-              <div class="mini"><b>${money(r.deductibleIn)}</b><span>In-network deductible</span></div>
-              <div class="mini"><b>${money(r.oopIn)}</b><span>In-network OOP max</span></div>
-            </div>
-            ${r.hsaContribution ? `<div class="mini"><b>-${money(r.hsaContribution)}</b><span>Estimated HSA contribution applied in this prototype</span></div>` : ``}
-            <details>
-              <summary>View common service costs</summary>
-              <div class="service-list">
-                <div><b>Primary care:</b> ${costText(r.primaryCare)}</div>
-                <div><b>Specialist:</b> ${costText(r.specialist)}</div>
-                <div><b>Urgent care:</b> ${costText(r.urgentCare)}</div>
-                <div><b>Telehealth:</b> ${costText(r.telehealth)}</div>
-                <div><b>30-day Rx:</b> ${r.rx.map(costText).join(" / ")}</div>
-                <div><b>Hospital/facility coinsurance:</b> ${Math.round(r.coinsurance * 100)}%</div>
-              </div>
-            </details>
-          </div>
-        </article>
-      `).join("");
-
-      $("compareRows").innerHTML = results.map((r, index) => `
-        <tr class="${index === 0 ? "best-row" : ""}">
-          <td data-label="Plan"><strong>${r.planName}</strong></td>
-          <td data-label="Estimated total annual cost">${money(r.estimatedAnnualCost)}</td>
-          <td data-label="Estimated care cost">${money(r.careCost)}</td>
-          <td data-label="Employee monthly premium">${money2(r.premium)}</td>
-          <td data-label="Annual employee premium">${money(r.annualPremium)}</td>
-          <td data-label="In-network deductible">${money(r.deductibleIn)}</td>
-          <td data-label="In-network OOP max">${money(r.oopIn)}</td>
-          <td data-label="Primary / Specialist">${costText(r.primaryCare)} / ${costText(r.specialist)}</td>
-          <td data-label="Rx: Generic / Preferred / Nonpreferred">${r.rx.map(costText).join(" / ")}</td>
-        </tr>
-      `).join("");
-    }
-
-    function bindEvents() {
-      $("preset").addEventListener("change", event => {
-        applyPreset(event.target.value);
-        render();
-      });
-
-      ["group", "tier", "network", "agencyContribution", "primaryCareVisits", "specialistVisits", "urgentCareVisits", "telehealthVisits", "genericRxFills", "preferredRxFills", "estimatedMajorMedicalClaims", "outOfNetworkUse"].forEach(id => {
-        $(id).addEventListener("change", () => {
-          if (!["group", "tier", "network", "agencyContribution"].includes(id)) $("preset").value = "custom";
-          render();
-        });
-        $(id).addEventListener("input", () => {
-          if (!["group", "tier", "network", "agencyContribution"].includes(id)) $("preset").value = "custom";
-          render();
-        });
-      });
-
-      $("resetBtn").addEventListener("click", () => {
-        $("group").value = CONFIG.assumptions.defaultGroup;
-        $("tier").value = CONFIG.assumptions.defaultCoverageTier;
-        $("network").value = CONFIG.assumptions.defaultNetwork;
-        $("agencyContribution").value = String(CONFIG.assumptions.defaultAgencyContributionPercent);
-        $("preset").value = "moderate";
-        applyPreset("moderate");
-        render();
-      });
-    }
-
-    initializeControls();
-    addOptions($("preset"), [["low", "Low use"], ["moderate", "Moderate use"], ["high", "High use"], ["custom", "Custom"]], "moderate");
-    applyPreset("moderate");
-    bindEvents();
+  document.getElementById("restartBtn")?.addEventListener("click",()=>{
+    Object.assign(S,{step:1,entity:null,tier:null,network:"narrow",usage:null,contribType:"pct",contribPct:80,contribDollar:0,adv:false,visits:{pc:3,sp:2,uc:1,th:2,grx:6,prx:3,major:0},oon:false});
     render();
-  </script>
+  });
+
+  // tooltip handlers
+  app.querySelectorAll(".tip-btn").forEach(btn=>{
+    btn.addEventListener("click",e=>{
+      e.stopPropagation();
+      const tt=document.getElementById(btn.dataset.tip);
+      if(!tt) return;
+      app.querySelectorAll(".tooltip.open").forEach(t=>{ if(t!==tt) t.classList.remove("open"); });
+      tt.classList.toggle("open");
+    });
+  });
+  document.addEventListener("click",()=>{ app.querySelectorAll(".tooltip.open").forEach(t=>t.classList.remove("open")); },{once:false});
+}
+
+function planCard(r, i, maxOop){
+  const riskPct = Math.round((r.oop/maxOop)*100);
+  const isHSA   = r.name.includes("HSA");
+  return `
+    <div class="pcard${i===0?' top-pick':''}">
+      <div class="pcard-hd">
+        <div class="pname">${r.name}</div>
+        ${i===0?'<div class="pbadge">✓ Lowest estimated cost</div>':''}
+        ${isHSA?`<div style="margin-top:6px;font-size:11px;color:var(--green);font-weight:700;">💰 HSA-eligible — employer contributes ${fmt(r.hsa)}</div>`:''}
+      </div>
+      <div class="pcard-body">
+        <div class="big-num">${fmt(r.total)}</div>
+        <div class="big-lbl">estimated total annual cost</div>
+        <div class="prow">
+          <span class="pk">Monthly premium <button class="tip-btn" data-tip="tt_prem_${i}">?</button>
+            <div class="tooltip" id="tt_prem_${i}">${TOOLTIPS.premium}</div></span>
+          <span class="pv">${fmt2(r.prem)}</span>
+        </div>
+        <div class="prow">
+          <span class="pk">Deductible <button class="tip-btn" data-tip="tt_ded_${i}">?</button>
+            <div class="tooltip" id="tt_ded_${i}">${TOOLTIPS.deductible}</div></span>
+          <span class="pv">${fmt(r.ded)}</span>
+        </div>
+        <div class="prow">
+          <span class="pk">OOP max <button class="tip-btn" data-tip="tt_oop_${i}">?</button>
+            <div class="tooltip" id="tt_oop_${i}">${TOOLTIPS.oop}</div></span>
+          <span class="pv">${fmt(r.oop)}</span>
+        </div>
+        <div class="risk-bar-wrap">
+          <div class="risk-bar-lbl"><span>Financial risk</span><span>${riskPct}%</span></div>
+          <div class="risk-bar-bg"><div class="risk-bar-fill" style="width:${riskPct}%;background:${riskPct<50?'#22c55e':riskPct<80?'#f59e0b':'#ef4444'};"></div></div>
+        </div>
+      </div>
+      <div class="pcard-foot">
+        <details>
+          <summary>Common service costs</summary>
+          <div class="svc-rows">
+            <div class="svc-row"><span class="sk">Primary care visit</span><span>${pct(r.pc)}</span></div>
+            <div class="svc-row"><span class="sk">Specialist visit</span><span>${pct(r.sp)}</span></div>
+            <div class="svc-row"><span class="sk">Urgent care visit</span><span>${pct(r.uc)}</span></div>
+            <div class="svc-row"><span class="sk">Telehealth</span><span>${r.th!==null?pct(r.th):"N/A"}</span></div>
+            <div class="svc-row"><span class="sk">30-day Rx (G/P/NP)</span><span>${r.rx.map(pct).join(" / ")}</span></div>
+            <div class="svc-row"><span class="sk">Hospital coinsurance</span><span>${Math.round(r.co*100)}%</span></div>
+          </div>
+        </details>
+      </div>
+    </div>`;
+}
+
+render();
+</script>
 </body>
 </html>
