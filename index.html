@@ -196,6 +196,10 @@
     .primary { background: var(--red); color: #fff; }
     .secondary { background: var(--light-blue); color: var(--blue); }
 
+    .btn-row .primary {
+      width: 100%;
+    }
+
     .summary-strip {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -576,8 +580,7 @@
         </fieldset>
 
         <div class="btn-row">
-          <button class="primary" id="updateBtn" type="button">Update comparison</button>
-          <button class="secondary" id="resetBtn" type="button">Reset</button>
+          <button class="primary" id="resetBtn" type="button">Reset estimate</button>
         </div>
       </div>
     </aside>
@@ -900,7 +903,6 @@
         });
       });
 
-      $("updateBtn").addEventListener("click", render);
       $("resetBtn").addEventListener("click", () => {
         $("group").value = CONFIG.assumptions.defaultGroup;
         $("tier").value = CONFIG.assumptions.defaultCoverageTier;
