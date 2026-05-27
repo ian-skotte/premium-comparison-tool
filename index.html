@@ -587,13 +587,13 @@
 
     <section>
       <div class="summary-strip" aria-live="polite">
-        <div class="stat"><span class="label">Lowest estimated annual cost</span><span class="value" id="bestCost">—</span><div class="sub" id="bestPlan">—</div></div>
+        <div class="stat"><span class="label">Lowest estimated total annual cost</span><span class="value" id="bestCost">—</span><div class="sub" id="bestPlan">—</div></div>
         <div class="stat"><span class="label">Lowest monthly employee premium</span><span class="value" id="lowestPremium">—</span><div class="sub" id="lowestPremiumPlan">—</div></div>
         <div class="stat"><span class="label">Lowest in-network max risk</span><span class="value" id="lowestRisk">—</span><div class="sub" id="lowestRiskPlan">—</div></div>
       </div>
 
       <div class="section-title">
-        <div><h2>Recommended plan options</h2><p>Sorted by estimated annual member cost.</p></div>
+        <div><h2>Recommended plan options</h2><p>Sorted by estimated total annual cost, including premiums.</p></div>
       </div>
 
       <div class="cards" id="cards"></div>
@@ -604,7 +604,7 @@
           <table>
             <thead>
               <tr>
-                <th>Plan</th><th>Estimated annual member cost</th><th>Employee monthly premium</th><th>Annual employee premium</th><th>In-network deductible</th><th>In-network OOP max</th><th>Primary / Specialist</th><th>Rx: Generic / Preferred / Nonpreferred</th>
+                <th>Plan</th><th>Estimated total annual cost</th><th>Estimated care cost</th><th>Employee monthly premium</th><th>Annual employee premium</th><th>In-network deductible</th><th>In-network OOP max</th><th>Primary / Specialist</th><th>Rx: Generic / Preferred / Nonpreferred</th>
               </tr>
             </thead>
             <tbody id="compareRows"></tbody>
@@ -613,7 +613,7 @@
       </section>
 
       <section class="defs" aria-label="Plain-language definitions" id="definitions"></section>
-      <p class="footer-note">This prototype focuses on 2026 active employee medical/health plans. It intentionally leaves dental, vision, life and disability out of the main comparison to keep the experience clear.</p>
+      <p class="footer-note"><strong>Important:</strong> Estimated total annual cost includes annual premiums plus estimated medical and prescription costs. The out-of-pocket maximum applies to covered eligible medical, behavioral health and non-specialty pharmacy costs, but it does not include premiums. This prototype focuses on 2026 active employee medical/health plans and intentionally leaves dental, vision, life and disability out of the main comparison to keep the experience clear.</p>
     </section>
   </main>
 
@@ -849,10 +849,11 @@
             ${index === 0 ? `<span class="badge">Lowest estimate</span>` : ``}
           </div>
           <div class="card-body">
-            <div class="price"><strong>${money(r.estimatedAnnualCost)}</strong><span>estimated annual member cost</span></div>
+            <div class="price"><strong>${money(r.estimatedAnnualCost)}</strong><span>estimated total annual cost</span></div>
             <div class="mini-grid">
               <div class="mini"><b>${money2(r.premium)}</b><span>Monthly employee premium</span></div>
               <div class="mini"><b>${money(r.annualPremium)}</b><span>Annual employee premium</span></div>
+              <div class="mini"><b>${money(r.careCost)}</b><span>Estimated care cost</span></div>
               <div class="mini"><b>${money(r.deductibleIn)}</b><span>In-network deductible</span></div>
               <div class="mini"><b>${money(r.oopIn)}</b><span>In-network OOP max</span></div>
             </div>
@@ -875,7 +876,8 @@
       $("compareRows").innerHTML = results.map((r, index) => `
         <tr class="${index === 0 ? "best-row" : ""}">
           <td data-label="Plan"><strong>${r.planName}</strong></td>
-          <td data-label="Estimated annual member cost">${money(r.estimatedAnnualCost)}</td>
+          <td data-label="Estimated total annual cost">${money(r.estimatedAnnualCost)}</td>
+          <td data-label="Estimated care cost">${money(r.careCost)}</td>
           <td data-label="Employee monthly premium">${money2(r.premium)}</td>
           <td data-label="Annual employee premium">${money(r.annualPremium)}</td>
           <td data-label="In-network deductible">${money(r.deductibleIn)}</td>
